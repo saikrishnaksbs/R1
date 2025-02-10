@@ -10,14 +10,19 @@ on:
       trigger-ci:
         description: "Trigger CI manually"
         required: false   # ✅ Made it optional so 'push' can still work
-
+        
 jobs:
   build:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Ensures all files are fetched
+
+      - name: Debug - List files
+        run: ls -R  # ✅ See if Dockerfile exists
 
       - name: Log in to GHCR
         run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u saikrishnaksbs --password-stdin
@@ -25,7 +30,7 @@ jobs:
       - name: Build and Push Docker Image
         run: |
           echo "Building Docker Image..."
-          docker build -t ghcr.io/saikrishnaksbs/meta_repo:latest .
+          docker build -t ghcr.io/saikrishnaksbs/meta_repo:latest -f Dockerfile .  # ✅ Change path if needed
           docker push ghcr.io/saikrishnaksbs/meta_repo:latest
 
       - name: Notify Build Success
