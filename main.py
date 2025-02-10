@@ -13,7 +13,7 @@ async def run(loop):
     await nc.connect(servers=["nats://0.0.0.0:4222"])
     await nc.subscribe("nila.1.*", cb=message_handler)
 
-    print("Core NATS 1 is subscribed  to nila.1.*")
+    print("Core NATS 111 is subscribed  to nila.1.*")
 
     await nc.flush() # Keep the connection alive
     
