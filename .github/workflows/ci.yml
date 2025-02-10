@@ -3,36 +3,29 @@ name: CI Pipeline
 on:
   push:
     branches:
-      - main
-      - dev
+      - main  # Change this to your default or desired branch
   workflow_dispatch:
+    inputs:
+      trigger-ci:
+        description: 'Trigger CI'
+        required: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0  # Ensure all files are fetched
+      
+      - name: Set up GH_PAT environment variable
+        run: echo "GH_PAT=${{ secrets.GHCR_TOKEN }}" >> $GITHUB_ENV
 
-      - name: Debug - List all files
-        run: ls -R  # ✅ Check if Dockerfile exists
-
-      - name: Log in to GHCR
-        run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u saikrishnaksbs --password-stdin
-
-      - name: Build and Push Docker Image
+      - name: Run CI
         run: |
-          echo "Building Docker Image..."
-          if [ -f "Dockerfile" ]; then
-            docker build -t ghcr.io/saikrishnaksbs/meta_repo:latest -f Dockerfile .
-          else
-            echo "❌ ERROR: Dockerfile not found!"
-            exit 1
-          fi
-          docker push ghcr.io/saikrishnaksbs/meta_repo:latest
-
-      - name: Notify Build Success
-        run: echo "Build and push completed successfully!"
+          echo "Running CI pipeline..."
+          curl -X POST -H "Accept: application/vnd.github.v3+json" \
+               -H "Authorization: Bearer $GH_PAT" \
+               -H "Content-Type: application/json" \
+               --data '{"event_type": "trigger-ci"}' \
+               https://api.github.com/repos/saikrishnaksbs/meta_repo/dispatches
