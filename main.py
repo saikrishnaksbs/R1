@@ -5,7 +5,7 @@ from nats.aio.errors import ErrConnectionClosed, ErrTimeout, ErrNoServers
 nc = NATS()
 
 async def message_handler(msg):
-    print(f"Core NATS 1 received a message: {msg.data.decode()}")
+    print(f"Core NATS 1 received message: {msg.data.decode()}")
     await msg.ack()
 
 async def run(loop):
